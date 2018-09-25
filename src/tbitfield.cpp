@@ -185,14 +185,9 @@ istream &operator>>(istream &istr, TBitField &bf) // ввод
 {
     int flag=0;
     cout<<"Input n: ";
-    cin>>bf.BitLen;
-    bf.MemLen=(bf.BitLen+31)>>5;
-    bf.pMem=new TELEM[bf.MemLen];
-    if (bf.pMem)
-    {
-      for(int i=0;i<bf.MemLen;i++)
-        bf.pMem[i]=0;
-    }
+    int n;
+    cin>>n;
+    bf=TBitField(n);
     char ch;
         cout<<"Enter the number: ";
         for(int i=0;i<bf.BitLen;i++)
