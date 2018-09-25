@@ -61,7 +61,7 @@ void TBitField::SetBit(const int n) // установить бит
 {
     if((n<0)||(n>BitLen))
         throw 1;
-    pMem[GetMemIndex(n)]=pMem[GetMemIndex(n)]|GetMemMask(n);
+    pMem[GetMemIndex(n)]|=GetMemMask(n);
 
 }
 
@@ -69,7 +69,7 @@ void TBitField::ClrBit(const int n) // очистить бит
 {
     if((n<0)||(n>BitLen))
         throw 1;
-    pMem[GetMemIndex(n)]=pMem[GetMemIndex(n)]&(~GetMemMask(n));
+    pMem[GetMemIndex(n)]&=(~GetMemMask(n));
 }
 
 int TBitField::GetBit(const int n) const // получить значение бита
@@ -138,13 +138,23 @@ TBitField TBitField::operator|(const TBitField &bf) // операция "или"
 TBitField TBitField::operator&(const TBitField &bf) // операция "и"
 {
     int i, len = BitLen;
-    if (bf.BitLen > len)
+    if (bf.BitLen < len)
     len = bf.BitLen;
     TBitField temp(len);
-    for (i = 0; i < MemLen; i++)
-    temp.pMem[i] = pMem[i];
-    for (i = 0; i < bf.MemLen; i++)
-    temp.pMem[i] &= bf.pMem[i];
+    if(bf.BitLen<BitLen)
+    {
+        for (i = 0; i < bf.MemLen; i++)
+        temp.pMem[i] = bf.pMem[i];
+        for (i = 0; i < bf.MemLen; i++)
+        temp.pMem[i] &= pMem[i];
+    }
+    else
+    {
+        for (i = 0; i < MemLen; i++)
+        temp.pMem[i] = pMem[i];
+        for (i = 0; i < MemLen; i++)
+        temp.pMem[i] &= bf.pMem[i];
+    }
     return temp;
 }
 
@@ -173,16 +183,19 @@ TBitField TBitField::operator~(void) // отрицание
 
 istream &operator>>(istream &istr, TBitField &bf) // ввод
 {
-    int flag=0,flag1=1;
+    int flag=0;
     cout<<"Input n: ";
     cin>>bf.BitLen;
     bf.MemLen=(bf.BitLen+31)>>5;
     bf.pMem=new TELEM[bf.MemLen];
-    char ch;
-    while(flag1)
+    if (bf.pMem)
     {
+      for(int i=0;i<bf.MemLen;i++)
+        bf.pMem[i]=0;
+    }
+    char ch;
         cout<<"Enter the number: ";
-        for(int i=bf.BitLen-1;i>-1;i--)
+        for(int i=0;i<bf.BitLen;i++)
         {
             cin>>ch;
             switch (ch)
@@ -193,18 +206,13 @@ istream &operator>>(istream &istr, TBitField &bf) // ввод
             case '0':
                 bf.ClrBit(i);
                 break;
-            default: flag=1;
+            default:
+                flag=1;
+                cout<<"You entered "<<i<<" digits. Thank you!";
             }
-            if(i==0)
-                flag1=0;
             if (flag==1)
-            {
-                cout<<"Invalid input, try again! "<<endl;
-                flag=0;
                 break;
-            }
         }
-    }
     return istr;
 }
 
