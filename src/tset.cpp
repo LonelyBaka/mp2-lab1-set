@@ -37,17 +37,38 @@ int TSet::GetMaxPower(void) const // получить макс. к-во эл-т�
 
 int TSet::IsMember(const int Elem) const // элемент множества?
 {
-  return BitField.GetBit(Elem);
+  try {
+    return BitField.GetBit(Elem);
+  }
+  catch(int a)
+  {
+    cout<<endl<<"Error!"<<endl;
+    exit(1);
+  }
 }
 
 void TSet::InsElem(const int Elem) // включение элемента множества
 {
-  BitField.SetBit(Elem);
+  try {
+    BitField.SetBit(Elem);
+  }
+  catch(int a)
+  {
+    cout<<endl<<"Error!"<<endl;
+    exit(1);
+  }
 }
 
 void TSet::DelElem(const int Elem) // исключение элемента множества
 {
-  BitField.ClrBit(Elem);
+  try {
+    BitField.ClrBit(Elem);
+  }
+  catch(int a)
+  {
+    cout<<endl<<"Error!"<<endl;
+    exit(1);
+  }
 }
 
 // теоретико-множественные операции
@@ -106,10 +127,87 @@ TSet TSet::operator~(void) // дополнение
 
 istream &operator>>(istream &istr, TSet &s) // ввод
 {
+  int n;
+  cout<<"Input MaxPower ";
+  cin>>n;
+  int a,flag=0;
+  s=TSet(n);
+  cout<<"Input number of elements ";
+  cin>>n;
+  cout<<"Input numeric set ";
+  for(int i=0;i<n;i++)
+  {
+    cin>>a;
+    if((a>s.MaxPower)||(a<flag))
+    {
+      cout<<"You entered "<<i<<" digits. Thank you!"<<endl;
+      break;
+    }
+    else
+    {
+      s.InsElem(a);
+      flag=a;
+    }
+  }
   return istr;
 }
 
 ostream& operator<<(ostream &ostr, const TSet &s) // вывод
 {
+  int flag=1;
+  int i,n;
+  for (i=0;i<s.MaxPower;i++)
+    if(s.IsMember(i))
+    {
+      flag=0;
+      break;
+    }
+  if (flag)
+  {
+    cout<<"{ \u2205 }";
+  }
+  else
+  {
+    cout<<endl<<"Output Numeric set(1) or Bitfield(2) ";
+    while(1)
+    {
+      cin>>i;
+      switch (i)
+      {
+        case 1:
+        {
+          char ch = ' ';
+          ostr << "{";
+          n = s.GetMaxPower();
+          for (i = 0; i < n; i++)
+            if(s.IsMember(i))
+            {
+              ostr<<ch<<i;
+              ch = ',';
+            }
+            ostr << " }";
+            return ostr;
+          }
+          case 2:
+          {
+            cout<<s.BitField;
+            return ostr;
+          }
+          default: cout<<"Invalid input, try again!";
+        }
+      }
+    }
   return ostr;
+  //
+  // int i,n; char ch = ' ';
+  // ostr << "{";
+  // n = s.GetMaxPower();
+  // for (i = 0; i < n; i++)
+  //   if(s.IsMember(i))
+  //   {
+  //     ostr<<ch<<i;
+  //     ch = ',';
+  //   }
+  // ostr << " }";
+  // return ostr;
 }
